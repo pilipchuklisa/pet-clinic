@@ -1,13 +1,7 @@
 package com.example.petclinic.bootstrap;
 
-import com.example.petclinic.model.Owner;
-import com.example.petclinic.model.Pet;
-import com.example.petclinic.model.PetType;
-import com.example.petclinic.model.Vet;
-import com.example.petclinic.services.OwnerService;
-import com.example.petclinic.services.PetService;
-import com.example.petclinic.services.PetTypeService;
-import com.example.petclinic.services.VetService;
+import com.example.petclinic.model.*;
+import com.example.petclinic.services.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -22,17 +16,28 @@ public class DataLoader implements CommandLineRunner {
     private final VetService vetService;
     private final PetService petService;
     private final PetTypeService petTypeService;
+    private final SpecialtyService specialtyService;
 
-    public DataLoader(OwnerService ownerService, VetService vetService, PetService petService, PetTypeService petTypeService) {
+    public DataLoader(OwnerService ownerService, VetService vetService, PetService petService,
+                      PetTypeService petTypeService, SpecialtyService specialtyService) {
         this.ownerService = ownerService;
         this.vetService = vetService;
         this.petService = petService;
         this.petTypeService = petTypeService;
+        this.specialtyService = specialtyService;
     }
 
     @Override
     public void run(String... args) throws Exception {
 
+        int count = petTypeService.findAll().size();
+
+        if (count == 0) {
+            loadData();
+        }
+    }
+
+    private void loadData() {
         PetType petType1 = new PetType();
         petType1.setName("pet type 1");
         petTypeService.save(petType1);
@@ -70,14 +75,28 @@ public class DataLoader implements CommandLineRunner {
         owner2.setPets(new HashSet<>(List.of(pet2)));
         ownerService.save(owner2);
 
+        Specialty specialty1 = new Specialty();
+        specialty1.setDescription("radiology");
+        specialtyService.save(specialty1);
+
+        Specialty specialty2 = new Specialty();
+        specialty2.setDescription("surgery");
+        specialtyService.save(specialty2);
+
+        Specialty specialty3 = new Specialty();
+        specialty3.setDescription("dentistry");
+        specialtyService.save(specialty3);
+
         Vet vet1 = new Vet();
         vet1.setFirstName("Rose");
         vet1.setLastName("Dou");
+        vet1.setSpecialties(new HashSet<>(List.of(specialty1)));
         vetService.save(vet1);
 
         Vet vet2 = new Vet();
         vet2.setFirstName("Ira");
         vet2.setLastName("Qwerty");
+        vet2.setSpecialties(new HashSet<>(List.of(specialty2)));
         vetService.save(vet2);
     }
 }
