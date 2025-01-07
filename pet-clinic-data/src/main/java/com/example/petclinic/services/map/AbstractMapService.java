@@ -1,4 +1,4 @@
-package com.example.petclinic.map;
+package com.example.petclinic.services.map;
 
 import com.example.petclinic.model.BaseEntity;
 import com.example.petclinic.services.CrudService;
