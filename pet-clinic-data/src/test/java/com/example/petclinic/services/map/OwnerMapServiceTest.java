@@ -96,7 +96,7 @@ class OwnerMapServiceTest {
         Owner owner = ownerMapService.findById(idValue);
         ownerMapService.delete(owner);
 
-        Assertions.assertEquals(0, ownerMapService.findAll().size());
+        Assertions.assertNull(ownerMapService.findById(idValue));
     }
 
     @Test
