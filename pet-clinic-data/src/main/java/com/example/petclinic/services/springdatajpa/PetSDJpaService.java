@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Service
@@ -22,7 +21,7 @@ public class PetSDJpaService implements PetService {
 
     @Override
     public Pet findById(Long id) {
-        return petRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        return petRepository.findById(id).orElse(null);
     }
 
     @Override
