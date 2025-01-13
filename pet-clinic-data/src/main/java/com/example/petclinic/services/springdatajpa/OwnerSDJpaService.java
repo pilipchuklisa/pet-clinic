@@ -4,6 +4,8 @@ import com.example.petclinic.model.Owner;
 import com.example.petclinic.repositories.OwnerRepository;
 import com.example.petclinic.services.OwnerService;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -22,6 +24,11 @@ public class OwnerSDJpaService implements OwnerService {
     @Override
     public Owner findByLastName(String lastName) {
         return ownerRepository.findByLastName(lastName);
+    }
+
+    @Override
+    public Page<Owner> findByLastNameStartingWith(String lastname, Pageable pageable) {
+        return ownerRepository.findByLastNameStartingWith(lastname, pageable);
     }
 
     @Override

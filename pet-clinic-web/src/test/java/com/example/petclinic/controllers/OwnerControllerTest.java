@@ -5,6 +5,7 @@ import com.example.petclinic.model.Pet;
 import com.example.petclinic.model.PetType;
 import com.example.petclinic.model.Visit;
 import com.example.petclinic.services.OwnerService;
+import org.assertj.core.util.Lists;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -25,6 +29,9 @@ import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -87,7 +94,7 @@ class OwnerControllerTest {
     void index() throws Exception {
         Mockito.when(service.findAll()).thenReturn(owners);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/owners"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/owners/index"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.view().name("owners/index"))
                 .andExpect(MockMvcResultMatchers.model().attribute("owners", Matchers.hasSize(2)));
@@ -99,7 +106,7 @@ class OwnerControllerTest {
     void findAllOwners() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/owners/find"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.view().name("notimplemented"));
+                .andExpect(MockMvcResultMatchers.view().name("owners/findOwners"));
 
         Mockito.verifyNoInteractions(service);
     }
@@ -120,5 +127,41 @@ class OwnerControllerTest {
                 .andExpect(model().attribute("owner",
                         hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))
                 .andExpect(view().name("owners/ownerDetails"));
+    }
+
+    @Test
+    void testInitFindForm() throws Exception {
+        mockMvc.perform(get("/owners/find"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("owner"))
+                .andExpect(view().name("owners/findOwners"));
+    }
+
+    @Test
+    void testProcessFindFormSuccess() throws Exception {
+        Page<Owner> tasks = new PageImpl<>(Lists.newArrayList(george(), new Owner()));
+        when(service.findByLastNameStartingWith(anyString(), any(Pageable.class))).thenReturn(tasks);
+        mockMvc.perform(get("/owners?page=1")).andExpect(status().isOk()).andExpect(view().name("owners/ownersList"));
+    }
+
+    @Test
+    void testProcessFindFormByLastName() throws Exception {
+        Page<Owner> tasks = new PageImpl<>(Lists.newArrayList(george()));
+        when(service.findByLastNameStartingWith(eq("Franklin"), any(Pageable.class))).thenReturn(tasks);
+        mockMvc.perform(get("/owners?page=1").param("lastName", "Franklin"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
+    }
+
+    @Test
+    void testProcessFindFormNoOwnersFound() throws Exception {
+        Page<Owner> tasks = new PageImpl<>(Lists.newArrayList());
+        when(service.findByLastNameStartingWith(eq("Unknown Surname"), any(Pageable.class))).thenReturn(tasks);
+        mockMvc.perform(get("/owners?page=1").param("lastName", "Unknown Surname"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasFieldErrors("owner", "lastName"))
+                .andExpect(model().attributeHasFieldErrorCode("owner", "lastName", "notFound"))
+                .andExpect(view().name("owners/findOwners"));
+
     }
 }

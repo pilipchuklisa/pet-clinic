@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -26,6 +27,8 @@ class OwnerSDJpaServiceTest {
 
     final Long ID_VALUE = 1L;
     final String LAST_NAME_VALUE = "lastname";
+
+    Pageable pageable;
 
     @BeforeEach
     void setUp() {
@@ -97,4 +100,14 @@ class OwnerSDJpaServiceTest {
 
         Mockito.verify(repository).deleteById(Mockito.anyLong());
     }
+
+//    @Test
+//    void findByLastNameStartingWith() {
+//        String start = "start";
+//        String lastName = start + LAST_NAME_VALUE;
+//        Owner owner = Owner.builder().lastName(lastName).build();
+//        repository.save(owner);
+//
+//        Assertions.assertEquals(owner, service.findByLastNameStartingWith(start, pageable));
+//    }
 }

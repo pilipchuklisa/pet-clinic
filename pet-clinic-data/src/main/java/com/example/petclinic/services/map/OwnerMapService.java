@@ -5,6 +5,8 @@ import com.example.petclinic.services.OwnerService;
 import com.example.petclinic.services.PetService;
 import com.example.petclinic.services.PetTypeService;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -50,5 +52,10 @@ public class OwnerMapService extends AbstractMapService<Owner, Long> implements 
                 .filter(o -> o.getLastName().equals(lastName))
                 .findAny()
                 .orElse(null);
+    }
+
+    @Override
+    public Page<Owner> findByLastNameStartingWith(String lastname, Pageable pageable) {
+        throw new RuntimeException("findByLastNameStartingWith(String lastname, Pageable pageable) method not implemented inside OwnerMapService");
     }
 }
