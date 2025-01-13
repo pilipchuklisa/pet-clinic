@@ -1,16 +1,16 @@
 package com.example.petclinic.controllers;
 
 import com.example.petclinic.model.Owner;
+import com.example.petclinic.model.Pet;
 import com.example.petclinic.model.PetType;
 import com.example.petclinic.services.OwnerService;
 import com.example.petclinic.services.PetService;
 import com.example.petclinic.services.PetTypeService;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collection;
 
@@ -38,24 +38,46 @@ public class PetController {
         return ownerService.findById(ownerId);
     }
 
-//    @ModelAttribute("pet")
-//    public Pet findPet(@PathVariable("ownerId") Long ownerId,
-//                       @PathVariable(name = "petId", required = false) Long petId) {
-//
-//        if (petId == null) {
-//            return new Pet();
-//        }
-//        Owner owner = ownerService.findById(ownerId);
-//
-//        return owner.getPets().stream()
-//                .filter(p -> Objects.equals(p.getId(), petId))
-//                .findFirst()
-//                .get();
-//    }
-
     @InitBinder("owner")
     public void initOwnerBinder(WebDataBinder dataBinder) {
         dataBinder.setDisallowedFields("id");
     }
 
+    @GetMapping("/new")
+    public ModelAndView showCreatePetForm() {
+        ModelAndView mav = new ModelAndView("pets/createOrUpdatePetForm");
+        mav.addObject("pet", new Pet());
+        return mav;
+    }
+
+    @PostMapping("/new")
+    public String createPet(@ModelAttribute("pet") Pet pet, @ModelAttribute("owner") Owner owner, BindingResult result) {
+        if (result.hasErrors()) {
+            return "pets/createOrUpdatePetForm";
+        }
+
+        pet.setOwner(owner);
+        petService.save(pet);
+        return "redirect:/owners/" + pet.getOwner().getId();
+    }
+
+    @GetMapping("/{petId}/edit")
+    public ModelAndView showUpdatePetForm(@PathVariable("petId") Long id) {
+        ModelAndView mav = new ModelAndView("pets/createOrUpdatePetForm");
+        mav.addObject("pet", petService.findById(id));
+        return mav;
+    }
+
+    @PostMapping("/{petId}/edit")
+    public String createPet(@PathVariable("petId") Long id, @ModelAttribute("pet") Pet pet,
+                            @ModelAttribute("owner") Owner owner, BindingResult result) {
+        if (result.hasErrors()) {
+            return "pets/createOrUpdatePetForm";
+        }
+
+        pet.setId(id);
+        pet.setOwner(owner);
+        petService.save(pet);
+        return "redirect:/owners/" + pet.getOwner().getId();
+    }
 }
