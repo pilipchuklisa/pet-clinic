@@ -67,6 +67,9 @@ public class DataLoader implements CommandLineRunner {
         owner1.setPets(new HashSet<>(List.of(pet1)));
         ownerService.save(owner1);
 
+        pet1.setOwner(owner1);
+        petService.save(pet1);
+
         Owner owner2 = new Owner();
         owner2.setAddress("address for owner 2");
         owner2.setCity("city for owner 2");
@@ -76,17 +79,26 @@ public class DataLoader implements CommandLineRunner {
         owner2.setPets(new HashSet<>(List.of(pet2)));
         ownerService.save(owner2);
 
+        pet2.setOwner(owner2);
+        petService.save(pet2);
+
         Visit visit1 = new Visit();
         visit1.setDate(LocalDate.of(2024, 12, 30));
         visit1.setDescription("description for visit 1");
         visit1.setPet(pet1);
         visitService.save(visit1);
 
+        pet1.setVisits(new HashSet<>(List.of(visit1)));
+        petService.save(pet1);
+
         Visit visit2 = new Visit();
         visit2.setDate(LocalDate.of(2025, 1, 5));
         visit2.setDescription("description for visit 2");
         visit2.setPet(pet2);
         visitService.save(visit2);
+
+        pet2.setVisits(new HashSet<>(List.of(visit2)));
+        petService.save(pet2);
 
         Specialty specialty1 = new Specialty();
         specialty1.setDescription("radiology");
