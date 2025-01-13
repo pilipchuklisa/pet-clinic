@@ -84,4 +84,41 @@ public class OwnerController {
         mav.addObject(ownerService.findById(ownerId));
         return mav;
     }
+
+    @GetMapping("/new")
+    public ModelAndView showCreateOwnerForm() {
+        ModelAndView mav = new ModelAndView("owners/createOrUpdateOwnerForm");
+        mav.addObject("owner", new Owner());
+        return mav;
+    }
+
+    @PostMapping("/new")
+    public String updateOwner(@ModelAttribute Owner owner, BindingResult result) {
+        if (result.hasErrors()) {
+            return "owners/createOrUpdateOwnerForm";
+        }
+
+        ownerService.save(owner);
+        return "redirect:/owners/index";
+    }
+
+    @GetMapping("/{ownerId}/edit")
+    public ModelAndView showUpdateOwnerForm(@PathVariable("ownerId") Long ownerId) {
+        ModelAndView mav = new ModelAndView("owners/createOrUpdateOwnerForm");
+        mav.addObject("owner", ownerService.findById(ownerId));
+        return mav;
+    }
+
+    @PostMapping("/{ownerId}/edit")
+    public String createOwner(@PathVariable("ownerId") Long id, Owner owner, BindingResult result) {
+
+        if (result.hasErrors()) {
+            return "owners/createOrUpdateOwnerForm";
+        }
+
+        owner.setId(id);
+        ownerService.save(owner);
+
+        return "redirect:/owners/index";
+    }
 }
